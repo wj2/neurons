@@ -1,0 +1,16 @@
+
+Code for simulating and visualizing neurons and networks of neurons, a somewhat
+OO approach in python. 
+
+Requires:
+- numpy
+- scipy
+- matplotlib
+
+Implemented:
+- Hodgkin-Huxley, single neuron w/ visualization
+- Krinsky-Kokoz reduction of HH to 2D, single neuron w/ visualization
+
+In progress:
+- Rate neurons with BCM synaptic plasticity rule, network
+- Rate neurons with covariance synaptic plasticity rule, network
