@@ -3,6 +3,7 @@ import numpy as np
 import scipy.integrate as sp_integrate
 import matplotlib.pyplot as plt
 import math
+import neurons.solver as ns
 
 class AdaptiveEIFNeuron(object):
     
@@ -17,31 +18,31 @@ class AdaptiveEIFNeuron(object):
         self.b = b
 
     def _dwdt(self, v, w):
-        # if v <= self.v_spk:
         delt = (-w + self.a*v) / self.tau_w
-        # else:
-        #     print 'spiking w!'
-        #     print v
-        #     delt = self.b
         return delt
 
     def _dvdt(self, v, w):
-        # if v <= self.v_spk:
-        #     print 'not spiking!'
         delt = (-v + self.delta_t*math.exp((v - self.v_t) / self.delta_t)
                 - w + self.curr) / self.tau_m
-        # else:
-        #     print 'spiking v!'
-        #     delt = -(v - self.v_r)
         return delt
 
     def _compute_step(self, t, init):
         v, w = init
         dv = self._dvdt(v, w)
         dw = self._dwdt(v, w)
-        # print 'v',v,dv
-        # print 'w',w,dw
-        return [dv, dw]
+        return np.array([dv, dw])
+
+    def simulate_euler(self, v, w, curr, tfinal, tbeg=0, dt=.1):
+        self.curr = curr
+        init = np.array([v, w])
+        integ = ns.EulerSolver(self._compute_step, tbeg, init)
+        
+        while integ.success and integ.t_curr < tfinal:
+            integ.integrate(integ.t_curr + dt)
+            if integ.y_curr[0] > self.v_spk:
+                integ.y_curr[0] = self.v_r
+                integ.y_curr[1] = integ.y_curr[1] + self.b
+        return integ, np.array(integ.y_record)
 
     def simulate(self, v, w, curr, tfinal, tbeg=0, dt=.1):
         self.curr = curr
@@ -65,10 +66,10 @@ class AdaptiveEIFNeuron(object):
         return odeinteg, np.array(result)
 
 def sim_and_plot(tau_m, v_t, delta_t, a, b, v_r, curr, tau_w, plot_v, plot_w):
-    v_spk = 26
+    v_spk = 50
     aeif = AdaptiveEIFNeuron(tau_w, tau_m, delta_t, v_t, v_spk, v_r, a, b)
     v, w = 0, 0
-    integ, res = aeif.simulate(v, w, curr, 1000, dt=.01)
+    integ, res = aeif.simulate_euler(v, w, curr, 1000, dt=.01)
     tcourse = np.arange(0, res.shape[0] / 100., .01)
     print res.shape, tcourse.shape
     plot_v.plot(tcourse, res[:, 0], 'b', label='V')
