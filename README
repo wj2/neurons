@@ -8,10 +8,9 @@ Requires:
 - matplotlib
 
 Implemented:
-- Hodgkin-Huxley, single neuron w/ visualization
-- Krinsky-Kokoz reduction of HH to 2D, single neuron w/ visualization
-
-In progress:
+- Hodgkin-Huxley, single neuron 
+- Krinsky-Kokoz reduction of HH to 2D, single neuron 
+- adaptive Exponential Integrate and Fire, single neuron
 - Rate neurons with BCM synaptic plasticity rule, network
 - Rate neurons with covariance synaptic plasticity rule, network
 
